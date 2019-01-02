@@ -4,35 +4,27 @@ re = requests.exceptions
 IEX_API_ENDPOINT = 'https://api.iextrading.com/1.0'
 REF_DATA_SYMBOLS = IEX_API_ENDPOINT + '/ref-data/symbols'
 STOCK_MARKET_BATCH_ENDPOINT = IEX_API_ENDPOINT + '/stock/market/batch'
+STOCK_MARKET_SECTOR_PERFORMANCE_ENDPOINT = IEX_API_ENDPOINT + '/stock/market/sector-performance'
 
-def request_symbols(timeout):
+#TODO HANDLE ERROS AND TIMEOUTS
+def request(url, timeout, *params):
     try:
-        return requests.get(REF_DATA_SYMBOLS, timeout=timeout)
+        if len(params) == 0:
+            return requests.get(url, timeout=timeout)
+        elif len(params) == 1:
+            return requests.get(url, params=params[0], timeout=timeout)
     except re.ConnectionError:
-        # TODO:
         print("ConnectionError")
     except re.HTTPError:
-        # TODO:
         print("HTTPError")
     except re.Timeout:
-        # TODO:
         print("Timeout")
 
-def request_url(url, params, timeout):
-    try:
-        return requests.get(url, params=params, timeout=timeout)
-    except re.ConnectionError:
-        # TODO:
-        pass
-    except re.HTTPError:
-        # TODO:
-        print("HTTPError")
-    except re.Timeout:
-        # TODO:
-        pass
-
 def get_symbols(timeout):
-    return request_symbols(timeout).json()
+    return request(REF_DATA_SYMBOLS ,timeout).json()
 
-def get_chart(params, timeout):
-    return request_url(STOCK_MARKET_BATCH_ENDPOINT, params, timeout).json()
+def get_sector_performance(timeout):
+    return request(STOCK_MARKET_SECTOR_PERFORMANCE_ENDPOINT, timeout).json()
+
+def get_batch(params, timeout):
+    return request(STOCK_MARKET_BATCH_ENDPOINT, timeout, params).json()
