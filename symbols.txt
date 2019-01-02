@@ -1,1 +1,1 @@
-AAPL
+AAPL,W,FB,AMZN

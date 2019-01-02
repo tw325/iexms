@@ -53,9 +53,6 @@ def html_table(json, max_rows=10):
         ]) for i in range(min(len(dataframe), max_rows))]
     )
 
-def news_table(batch_json, name):
-    return html_table(batch_json[name]["news"], max_rows=10)
-
 def chart_graph(batch_json, name, mode):
     name_df = pd.DataFrame.from_dict(batch_json[name]["chart"])
     return dcc_graph(name, [go_scatter(name_df, name, mode)], go_layout())
@@ -65,7 +62,7 @@ def chart_graph_layered(batch_json, mode):
     for name, value in batch_json.items():
         name_df = pd.DataFrame.from_dict(batch_json[name]["chart"])
         data.append(go_scatter(name_df, name, mode))
-    return dcc_graph(name, data, go_layout())
+    return dcc_graph("layered", data, go_layout())
 
 def tabs(symbols_json):
     return [dcc.Tab(label=s, value=s) for s in symbols_json]
