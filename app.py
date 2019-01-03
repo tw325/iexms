@@ -21,12 +21,11 @@ PARAMS = {
     'last': '5'
 }
 
-symbols_json = iexms.get_symbols(REQUEST_TIMEOUT)
-sector_performance_json = iexms.get_sector_performance(REQUEST_TIMEOUT)
 batch_json = iexms.get_batch(PARAMS, REQUEST_TIMEOUT)
-options = []
-for s in symbols_json:
-    options.append({'label': s['symbol'], 'value': s['symbol']})
+most_active_json = iexms.get_most_active(REQUEST_TIMEOUT)
+sector_performance_json = iexms.get_sector_performance(REQUEST_TIMEOUT)
+symbols_json = iexms.get_symbols(REQUEST_TIMEOUT)
+options = [{'label': s['symbol'], 'value': s['symbol']} for s in symbols_json]
 
 ################################### ACTUAL APP #################################
 
@@ -35,39 +34,48 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(children=[
     html.H1(children='IEX Management System'),
 
-    html.Div(id='my-div'),
-    dcc.Dropdown(
-        id = "dropdown",
-        options=options,
-        value=SYMBOLS,
-        multi=True
-    ),
+    html.Div([
 
-    html.H4(children='Your Watchlist'),
-    dcc.Tabs(
-        id="tabs",
-        value=SYMBOLS[0],
-        children=layout.tabs(SYMBOLS),
-    ),
-    html.Div(id='tabs-content'),
+        html.Div([
+            html.H6(children='Sector Performance'),
+            layout.table(sector_performance_json, 'sector_performance', ['name','performance']),
+        ], className="three columns"),
 
-    html.H4(children='All'),
-    layout.chart_graph_layered(batch_json, 'lines'),
+        html.Div([
+            html.Div(id='my-div'),
+            dcc.Dropdown(
+                id = "dropdown",
+                options=options,
+                value=SYMBOLS,
+                multi=True
+            ),
 
-    html.H4(children='Sector Performance'),
-    layout.html_table(sector_performance_json, 20),
+            html.H4(children='Your Watchlist'),
+            dcc.Tabs(
+                id="tabs",
+                value=SYMBOLS[0],
+                children=layout.tabs(SYMBOLS),
+            ),
+            html.Div(id='tabs-content'),
 
-    # layout.html_div_center([
-    #     html.H4(children='Stock Symbols'),
-    #     layout.html_table(symbols_json, 10),
-    # ], 600),
+            html.H4(children='All'),
+            layout.chart_graph_layered(batch_json, 'lines'),
+        ], className="five columns"),
 
-], className='container', style={'textAlign': 'center'})
+        html.Div([
+            html.H6(children='Stock Symbols'),
+            layout.table_all(most_active_json, 'most_active', 10),
+        ], className="four columns"),
+
+
+    ], className="row "),
+
+], style={'textAlign': 'center'})
 
 @app.callback(Output('tabs-content', 'children'), [Input('tabs', 'value')])
 def render_content(tab):
-    return layout.chart_graph(batch_json, tab, 'lines')
-    # return layout.html_table(batch_json[name]["news"], tab)
+    # return layout.chart_graph(batch_json, tab, 'lines')
+    return layout.news_table(batch_json[tab]["news"], tab, ['datetime', 'source', 'headline', 'url'])
 
 @app.callback(Output('my-div', 'children'), [Input('dropdown', 'value')])
 def update_output_div(input_value):
