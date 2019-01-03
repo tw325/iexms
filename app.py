@@ -40,12 +40,11 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.config['suppress_callback_exceptions']=True
 
 app.layout = html.Div(children=[
-    html.H1(children='IEX Management System'),
+    html.H2(children='IEXMS'),
 
     html.Div([
 
         html.Div([
-            html.H6(children='Stock Symbols'),
             layout.tabs('list', LIST_TYPES),
             html.Div(id='list-content'),
         ], className="twelve columns"),
@@ -55,7 +54,7 @@ app.layout = html.Div(children=[
     html.Div([
 
         html.Div([
-            html.H6(children='Stock Symbols'),
+            html.H6(children='Watchlist'),
             dcc.Dropdown(
                 id = "dropdown",
                 options=options,
